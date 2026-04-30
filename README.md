@@ -83,7 +83,7 @@ Vizualizacije su korištene za lakše razumijevanje podataka.
 
 ### Graf 1 – Temperatura i voda
 
-![Graf 1](assets/graf1_temperatura_voda(1).png)
+![Graf 1](src/graf1_temperatura_voda(1).png)
 
 Graf prikazuje odnos temperature i količine vode. Boja označava prisutnost metana.
 
@@ -91,7 +91,7 @@ Graf prikazuje odnos temperature i količine vode. Boja označava prisutnost met
 
 ### Graf 2 – Dubina bušenja
 
-![Graf 2](assets/graf2_karta_dubine(1).png)
+![Graf 2](src/graf2_karta_dubine(1).png)
 
 Prikazuje raspodjelu dubine uzoraka po lokacijama.
 
@@ -99,7 +99,7 @@ Prikazuje raspodjelu dubine uzoraka po lokacijama.
 
 ### Graf 3 – Metan
 
-![Graf 3](assets/graf3_metan(1).png)
+![Graf 3](src/graf3_metan(1).png)
 
 Crvena boja označava prisutnost metana, a plava odsutnost.
 
@@ -107,7 +107,7 @@ Crvena boja označava prisutnost metana, a plava odsutnost.
 
 ### Graf 4 – Kandidati za bušenje
 
-![Graf 4](assets/karta_kandidata(1).png)
+![Graf 4](src/karta_kandidata(1).png)
 
 Prikazane su lokacije koje zadovoljavaju uvjete za bušenje.
 
@@ -115,7 +115,7 @@ Prikazane su lokacije koje zadovoljavaju uvjete za bušenje.
 
 ### Graf 5 – Satelitska mapa
 
-![Graf 5](assets/jezero_mission_map.jpg)
+![Graf 5](src/jezero_mission_map.jpg)
 
 Za prikaz je korišteno **extent mapiranje**, kojim se slika usklađuje s GPS koordinatama.
 
