@@ -1,93 +1,200 @@
-# Misija Nexus – Analitički pipeline i geoprostorna analiza
+# Misija Nexus – Tehnička dokumentacija projekta
 
-## A. Izvršni sažetak (Executive Summary)
+## Izvršni sažetak (Executive Summary)
 
-Ovaj projekt fokusiran je na analizu geoprostornih i kemijskih podataka prikupljenih iz kratera Jezero na Marsu. Ulazni podaci sastoje se od dvije CSV datoteke koje sadrže informacije o lokacijama uzoraka i njihovim kemijskim svojstvima. Cilj projekta je identificirati validne lokacije za kretanje autonomnog robota te generirati automatizirani navigacijski nalog u JSON formatu.
+Projekt *Misija Nexus* bavi se analizom podataka prikupljenih u krateru Jezero na Marsu s ciljem pronalaska najboljih lokacija za bušenje. Sustav obrađuje telemetrijske podatke sa senzora i pokušava prepoznati uvjete koji mogu ukazivati na prisutnost vode ili organskih tvari.
 
----
+Podaci dolaze iz dvije CSV datoteke: jedna sadrži geoprostorne koordinate, a druga senzorska mjerenja. Korištenjem Python alata (Pandas, Matplotlib i Seaborn) napravljen je analitički proces koji:
 
-## B. Metodologija obrade podataka (Data Wrangling)
+* spaja podatke u jednu cjelinu
+* uklanja netočne i nelogične vrijednosti
+* prikazuje rezultate pomoću grafova
+* generira JSON naloge za robota
 
-Podaci su učitani iz dvije odvojene CSV datoteke i spojeni pomoću zajedničkog identifikatora `ID_Uzorka`. Nakon spajanja, primijenjeno je filtriranje podataka korištenjem booleanskih uvjeta.
-
-Uklonjene su vrijednosti koje predstavljaju senzorski šum:
-
-* temperature izvan raspona (-80°C do 20°C)
-* pH vrijednosti izvan intervala (6–8)
-* uzorci s premalim udjelom vode
-
-Ovakav pristup osigurava da se u daljnjoj analizi koriste samo fizički mogući i znanstveno relevantni podaci.
+Na kraju se dobije lista lokacija koje zadovoljavaju uvjete za daljnju analizu.
 
 ---
 
-## C. Geoprostorna analiza i vizualizacija
+## Arhitektura repozitorija
 
-### Korelacija parametara
+Projekt je organiziran u nekoliko mapa radi lakšeg snalaženja:
 
-![Korelacija](assets/graf1.png)
+* `data/`
+  Sadrži ulazne CSV datoteke (`mars_lokacije.csv`, `mars_uzorci.csv`)
 
-Graf prikazuje odnos između temperature i koncentracije metana. Boja (hue) predstavlja pH vrijednost, dok veličina točaka prikazuje udio vode.
+* `src/`
+  Python skripte za obradu i analizu podataka
 
----
+* `assets/`
+  Grafovi i slike dobivene analizom
 
-### Toplinska karta dubine
+* `README.md`
+  Glavna dokumentacija projekta
 
-![Toplinska karta](assets/graf2.png)
-
-Vizualizacija prikazuje raspodjelu dubine uzoraka i identificira zone s potencijalno značajnim geološkim karakteristikama.
-
----
-
-### Satelitska mapa (extent mapiranje)
-
-![Mapa](assets/mapa.png)
-
-Za prikaz geoprostornih podataka korištena je satelitska slika uz primjenu parametra `extent`, koji definira granice prikaza na temelju minimalnih i maksimalnih GPS koordinata.
-
-Time su analitički podaci precizno poravnati s realnim geografskim kontekstom, što omogućuje pouzdanu navigaciju robota.
+Ovakva podjela olakšava rad i čini projekt preglednijim.
 
 ---
 
-## D. Komunikacijski protokol (JSON Uplink)
+## Metodologija obrade podataka (Data Wrangling)
 
-Navigacijski nalozi generiraju se automatski iteracijom kroz filtrirane podatke.
+### Učitavanje podataka
 
-Primjer JSON strukture:
+Podaci su učitani pomoću Pandas biblioteke. Prilikom učitavanja bilo je važno postaviti:
+
+* separator `;`
+* decimalni zapis `,`
+
+Bez toga bi podaci bili krivo učitani.
+
+---
+
+### Spajanje podataka
+
+Dvije tablice spojene su preko stupca `ID_Uzorka`, čime je dobiven jedan zajednički DataFrame koji sadrži sve potrebne informacije.
+
+---
+
+### Uklanjanje anomalija
+
+Zbog mogućih grešaka senzora, bilo je potrebno ukloniti nelogične vrijednosti. Korišteni su sljedeći uvjeti:
+
+* temperatura mora biti između -100 i 40
+* pH između 0 i 14
+* udio vode između 0 i 100
+
+Podaci koji ne zadovoljavaju ove uvjete izdvojeni su kao anomalije.
+
+---
+
+### Rezultati obrade
+
+Dobivene su dvije datoteke:
+
+* `cisti_podaci.csv` – podaci spremni za analizu
+* `anomalije.csv` – podaci s greškama
+
+---
+
+## Geoprostorna analiza i vizualizacija
+
+Vizualizacije su korištene za lakše razumijevanje podataka.
+
+---
+
+### Graf 1 – Temperatura i voda
+
+![Graf 1](assets/graf1_temperatura_voda.png)
+
+Graf prikazuje odnos temperature i količine vode. Boja označava prisutnost metana.
+
+---
+
+### Graf 2 – Dubina bušenja
+
+![Graf 2](assets/graf2_karta_dubine.png)
+
+Prikazuje raspodjelu dubine uzoraka po lokacijama.
+
+---
+
+### Graf 3 – Metan
+
+![Graf 3](assets/graf3_metan.png)
+
+Crvena boja označava prisutnost metana, a plava odsutnost.
+
+---
+
+### Graf 4 – Kandidati za bušenje
+
+![Graf 4](assets/karta_kandidata.png)
+
+Prikazane su lokacije koje zadovoljavaju uvjete za bušenje.
+
+---
+
+### Graf 5 – Satelitska mapa
+
+![Graf 5](assets/misijska_karta_jezero.jpg)
+
+Za prikaz je korišteno **extent mapiranje**, kojim se slika usklađuje s GPS koordinatama.
+
+Extent definira granice prikaza:
+
+```
+[X_min, X_max, Y_min, Y_max]
+```
+
+Na taj način podaci su pravilno postavljeni na kartu.
+
+---
+
+## Identifikacija kandidata
+
+Kandidati su određeni pomoću uvjeta:
+
+* metan mora biti pozitivan
+* organske molekule moraju biti prisutne
+
+---
+
+## Komunikacijski protokol (JSON Uplink)
+
+Nakon obrade podataka generira se JSON koji robot koristi za kretanje.
+
+Primjer:
 
 ```json
 {
-  "id": 101,
-  "akcija": "MOVE",
-  "koordinate": {
-    "lat": -18.4,
-    "lon": 77.5
-  }
+  "kandidati": [
+    {
+      "ID_Uzorka": 12345,
+      "GPS_LAT": 12.3456,
+      "GPS_LONG": 98.7654,
+      "akcije": [
+        { "tip": "NAVIGACIJA" },
+        { "tip": "SONDIRANJE" },
+        { "tip": "SLANJE_PODATAKA" }
+      ]
+    }
+  ]
 }
 ```
 
-Podaci se generiraju pomoću petlje kroz DataFrame, čime se izbjegava hardkodiranje i omogućuje dinamičko prilagođavanje rezultata.
+Podaci se generiraju automatski pomoću petlje kroz DataFrame.
 
 ---
 
-## E. Inženjerski dnevnik (Troubleshooting Log)
+## Inženjerski dnevnik (Troubleshooting Log)
 
-**Problem 1: Neuspješno učitavanje CSV datoteka**
+### Problem 1: Učitavanje CSV datoteka
 
-* Uzrok: pogrešan separator (`;` umjesto `,`)
-* Rješenje: korištenje `delimiter=';'` u funkciji `read_csv()`
+Uzrok: pogrešan separator
+Rješenje: korištenje `sep=";"`
 
-**Problem 2: Rušenje skripte zbog tipova podataka**
+---
 
-* Uzrok: numeričke vrijednosti učitane kao string
-* Rješenje: konverzija pomoću `astype(float)`
+### Problem 2: Spajanje tablica
 
-**Problem 3: Neispravno poravnanje mape**
+Uzrok: različiti tipovi podataka
+Rješenje: usklađivanje tipova prije spajanja
 
-* Uzrok: pogrešno definirane granice extent parametra
-* Rješenje: korištenje min/max koordinata iz dataset-a
+---
+
+### Problem 3: Graf bez legende
+
+Uzrok: nedostaje label
+Rješenje: dodan `plt.legend()`
+
+---
+
+### Problem 4: Pogrešna mapa
+
+Uzrok: krivo postavljen extent
+Rješenje: korištenje min i max koordinata
 
 ---
 
 ## Zaključak
 
-Projekt demonstrira cjelovit analitički pipeline: od obrade podataka, preko vizualizacije, do generiranja automatiziranih navigacijskih naredbi. Struktura repozitorija i dokumentacija omogućuju jednostavno razumijevanje i daljnju nadogradnju sustava.
+Projekt pokazuje kako se podaci mogu obraditi, analizirati i prikazati na razumljiv način. Dobiveni rezultati mogu se koristiti za donošenje odluka i daljnju analizu.
