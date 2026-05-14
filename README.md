@@ -83,7 +83,7 @@ Vizualizacije su korištene za lakše razumijevanje podataka.
 
 ### Graf 1 – Temperatura i voda
 
-![Graf 1](assets/graf1_temperatura_voda.png)
+![Graf 1](navigacija/assets/graf1_temperatura_voda.png)
 
 Graf prikazuje odnos temperature i količine vode. Boja označava prisutnost metana.
 
